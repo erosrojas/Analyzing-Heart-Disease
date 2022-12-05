@@ -1,9 +1,7 @@
 
-
-
-
 ## X, Y are **dataframes** containing the independent variables and responsible variable, respectively.
 ## max_var_num is a number that limiting the maximum number of variables can be included in the model
+## It outputs a table with number of variables, selected variables, and mis-classification rate (training)
 
 forward_selection_for_logistic_model <- function(x,y, max_var_num = Inf) {
     n <- ncol(x)
