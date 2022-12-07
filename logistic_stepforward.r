@@ -21,7 +21,7 @@ forward_selection_for_logistic_model <- function(x, y, max_var_num = Inf, cutoff
             if(!(all_vars[i] %in% vars_selected)) {
                 form <- as.formula(paste(colnames(y),"~", paste(vars_selected, all_vars[i], sep = "+") ,sep = " ")) # creates formula to be fitted
                 model <- glm(formula = form, data = cbind(x,y), family = "binomial") # fit the data with (y,x)
-                pred <- round(predict(model, data = x, type = "response") + 0.5 - cutoff)
+                pred <- round(model$fitted.value + 0.5 - cutoff)
                 conf_mat <- table(as.matrix(y), pred)
                 # above line creates the confusion matrix. [1,1]: TN, [1,2]:FP, [2,1]: FN, [2,2]: TP, if all predicted value are 0 or 1, only 1 column
                 zero_in <- 0 %in% pred
