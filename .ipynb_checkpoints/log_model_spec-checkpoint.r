@@ -2,7 +2,7 @@
 library(tidyverse)
 
 ## Input: a logistic model, desiring sensitivity or specitivity
-## Output: a cut off number and resulting misclassification rate, ssensitivity and specitivity
+## Output: a cut off number and resulting misclassification rate, sensitivity and specitivity
 
 logistic_model_sens <- function(model, sensitivity = 0, specificity = 0) {
     
