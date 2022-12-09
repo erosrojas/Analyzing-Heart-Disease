@@ -11,7 +11,8 @@ forward_selection_for_logistic_model <- function(x, y, max_var_num = Inf, cutoff
 
     # dat <- cbind(y,x)
     all_vars <- colnames(x) # all-vars denotes the names of all independent variables
-    vars_selected <- logical(0) # initialization of selected variables, will be updated by the algorithm
+    vars_selected <- c() # initialization of selected
+    vars_selected_string <- logical(0) # initialization of selected variables, will be updated by the algorithm
     result <- data.frame(num_of_var = logical(0), vars = logical(0), mis_rate = logical(0), 
                          sensitivity = logical(0), specificity = logical(0)) # initialization of the result table
     
@@ -19,7 +20,7 @@ forward_selection_for_logistic_model <- function(x, y, max_var_num = Inf, cutoff
         mis_rate <- 1
         for(i in 1:n) {
             if(!(all_vars[i] %in% vars_selected)) {
-                form <- as.formula(paste(colnames(y),"~", paste(vars_selected, all_vars[i], sep = "+") ,sep = " ")) # creates formula to be fitted
+                form <- as.formula(paste(colnames(y),"~", paste(vars_selected_string, all_vars[i], sep = "+") ,sep = " ")) # creates formula to be fitted
                 model <- glm(formula = form, data = cbind(x,y), family = "binomial") # fit the data with (y,x)
                 pred <- round(model$fitted.value + 0.5 - cutoff)
                 conf_mat <- table(as.matrix(y), pred)
@@ -36,30 +37,32 @@ forward_selection_for_logistic_model <- function(x, y, max_var_num = Inf, cutoff
                         mis_rate_now <- 1 - sum(as.numeric(as.matrix(y))) / nrow(y)
                     }
                 }
-            }
-            if (mis_rate_now < mis_rate) { #update of smallest mis_rate
-                mis_rate <- mis_rate_now
-                if (zero_in && one_in){
-                        sensitivity <- conf_mat[2,2] / sum(conf_mat[2,])
-                        specificity <- conf_mat[1,1] / sum(conf_mat[1,])
-                    }
-                if (!one_in) {
-                    sensitivity <- 0
-                    specificity <- 1
-                    }
-                if (!zero_in) {
-                    sensitivity <- 1
-                    specificity <- 0
-                    }
-                new_var <- all_vars[i]
+                if (mis_rate_now < mis_rate) { #update of smallest mis_rate
+                    mis_rate <- mis_rate_now
+                    if (zero_in && one_in) {
+                            sensitivity <- conf_mat[2,2] / sum(conf_mat[2,])
+                            specificity <- conf_mat[1,1] / sum(conf_mat[1,])
+                        }
+                    if (!one_in) {
+                        sensitivity <- 0
+                        specificity <- 1
+                        }
+                    if (!zero_in) {
+                        sensitivity <- 1
+                        specificity <- 0
+                        }
+                    new_var <- all_vars[i]
+                }
             }
         }
         if (length(vars_selected) == 0) { #this if_else expression is to add newly selected variable to vars_selected
-            vars_selected <- new_var
+            vars_selected_string <- new_var
         } else {
-            vars_selected <- paste(vars_selected, new_var, sep = "+")
+            vars_selected_string <- paste(vars_selected_string, new_var, sep = "+")
         }
-        result[j,] <- c(j, vars_selected, mis_rate, sensitivity, specificity)
+        vars_selected <- append(vars_selected, new_var)
+        result[j,] <- c(j, vars_selected_string, mis_rate, sensitivity, specificity)
     }
+    
     result
 }
