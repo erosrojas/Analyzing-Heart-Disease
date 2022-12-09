@@ -2,10 +2,16 @@
 
 # Produces a confusion matrix for a logistic model with cutoff value (default cutoff = 0.5)
 # if display is true, it prints results
+# Must be given the true y and the predicted y
 
-conf_mat_logistic <- function(model, cutoff = 0.5, get.info = FALSE, display = FALSE) { 
+conf_mat_logistic <- function(log_model, true_y = FALSE, pred_y = FALSE, cutoff = 0.5, get.info = FALSE, display = FALSE, model = TRUE) { 
     
-    newdata <- tibble(y = model$y, pred = round(model$fitted.value - cutoff + 0.5))
+    if (model == TRUE) {
+        newdata <- tibble(y = log_model$y, pred = round(log_model$fitted.value - cutoff + 0.5))
+    } else {
+        newdata <- tibble(y = true_y, pred = round(pred_y - cutoff + 0.5))
+    }
+    
     suppressWarnings({
         TT <- newdata %>%
             filter(y == pred, pred == 1) %>%
@@ -39,5 +45,5 @@ conf_mat_logistic <- function(model, cutoff = 0.5, get.info = FALSE, display = F
         })
     
         if (get.info == FALSE) return(conf_mat)
-        else return(list(conf_mat = conf_mat, accuracy = accuracy, sensitivity = sensitivity, specificity = specificity))
+            else return(list(conf_mat = conf_mat, accuracy = accuracy, sensitivity = sensitivity, specificity = specificity))
         }

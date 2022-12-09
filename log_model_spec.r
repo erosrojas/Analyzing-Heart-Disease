@@ -1,10 +1,11 @@
 
 library(tidyverse)
 
-## Input: a logistic model, desiring sensitivity or specitivity
+## Input: a logistic model, desiring sensitivity or specitivity 
+##        NOTE: since this does not work for a regularized logistic model, there is an option to manually input true and pred vectors
 ## Output: a cut off number and resulting misclassification rate, sensitivity and specitivity
 
-logistic_model_sens <- function(model, sensitivity = 0, specificity = 0) {
+logistic_model_sens <- function(log_model, sensitivity = 0, specificity = 0, true_y = FALSE, pred_y = FALSE, model = TRUE) {
     
     sens_spec <- function(newdata) { 
         TT <- newdata %>%
@@ -27,9 +28,17 @@ logistic_model_sens <- function(model, sensitivity = 0, specificity = 0) {
     if(sensitivity < 0 || specificity < 0 || sensitivity > 1 || specificity > 1) stop()
 
     cutoff <- 0.5
-    tolerance_sens <- 1 / sum(model$y == 1)
-    tolerance_spec <- 1 / sum(model$y == 0)
-    data <- data.frame(y = model$y, pred = model$fitted.value)
+    
+    if (model == TRUE) {
+        tolerance_sens <- 1 / sum(model$y == 1)
+        tolerance_spec <- 1 / sum(model$y == 0)
+        data <- data.frame(y = log_model$y, pred = log_model$fitted.value)
+    } else {
+        tolerance_sens <- 1 / sum(true_y == 1)
+        tolerance_spec <- 1 / sum(true_y == 0)
+        data <- data.frame(y = true_y, pred = pred_y)
+    }
+    
     sen_and_spe <- sens_spec(data %>% mutate(pred = round(pred)))
     result <- data.frame(Cutoff = 0.5, Sensitivity = sen_and_spe[1], Specificity = sen_and_spe[2])
     
