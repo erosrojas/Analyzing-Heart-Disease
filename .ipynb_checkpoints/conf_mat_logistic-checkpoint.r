@@ -4,9 +4,9 @@
 # if display is true, it prints results
 # Must be given the true y and the predicted y
 
-conf_mat_logistic <- function(log_model, true_y = FALSE, pred_y = FALSE, cutoff = 0.5, get.info = FALSE, display = FALSE, model = TRUE) { 
+conf_mat_logistic <- function(log_model = NA, true_y = FALSE, pred_y = FALSE, cutoff = 0.5, get.info = FALSE, display = FALSE) { 
     
-    if (model == TRUE) {
+    if (!is.na(log_model)) {
         newdata <- tibble(y = log_model$y, pred = round(log_model$fitted.value - cutoff + 0.5))
     } else {
         newdata <- tibble(y = true_y, pred = round(pred_y - cutoff + 0.5))

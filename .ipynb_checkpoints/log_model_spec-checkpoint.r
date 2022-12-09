@@ -5,7 +5,7 @@ library(tidyverse)
 ##        NOTE: since this does not work for a regularized logistic model, there is an option to manually input true and pred vectors
 ## Output: a cut off number and resulting misclassification rate, sensitivity and specitivity
 
-logistic_model_sens <- function(log_model, sensitivity = 0, specificity = 0, true_y = FALSE, pred_y = FALSE, model = TRUE) {
+logistic_model_sens <- function(log_model = NA, sensitivity = 0, specificity = 0, true_y = FALSE, pred_y = FALSE) {
     
     sens_spec <- function(newdata) { 
         TT <- newdata %>%
@@ -21,7 +21,7 @@ logistic_model_sens <- function(log_model, sensitivity = 0, specificity = 0, tru
             filter(y != pred, pred == 0) %>%
             nrow()
         
-        return(c(TT / (TT + FF), TF / (TF + FT)))
+        return(c(TT / (TT + FF), TF / (TF + FT), (TT + TF) / (TT + TF + FT + FF)))
         
         }
 
@@ -29,7 +29,7 @@ logistic_model_sens <- function(log_model, sensitivity = 0, specificity = 0, tru
 
     cutoff <- 0.5
     
-    if (model == TRUE) {
+    if (!is.na(log_model)) {
         tolerance_sens <- 1 / sum(model$y == 1)
         tolerance_spec <- 1 / sum(model$y == 0)
         data <- data.frame(y = log_model$y, pred = log_model$fitted.value)
@@ -114,7 +114,7 @@ logistic_model_sens <- function(log_model, sensitivity = 0, specificity = 0, tru
         }
     }
     
-    result <- data.frame(Cutoff = cutoff, Sensitivity = sen_and_spe[1], Specificity = sen_and_spe[2])
+    result <- data.frame(Cutoff = cutoff, Sensitivity = sen_and_spe[1], Specificity = sen_and_spe[2], Accuracy = sen_and_spe[3])
     return(result)
         
 }
